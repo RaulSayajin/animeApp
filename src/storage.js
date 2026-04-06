@@ -45,6 +45,7 @@ export async function registerUser(user) {
       telefone: user.telefone,
       email: normalizedEmail,
       senha: user.senha,
+      curso: user.curso,
     },
   ];
 
