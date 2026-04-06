@@ -1,32 +1,32 @@
 import { useCallback, useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    FlatList,
-    ImageBackground,
-    Linking,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  ImageBackground,
+  Linking,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import PlaylistModal from "../components/PlaylistModal";
 import {
-    getAnimeDetails,
-    getAnimesByGenre,
-    getPopularAnimes,
-    searchAnimes,
+  getAnimeDetails,
+  getAnimesByGenre,
+  getPopularAnimes,
+  searchAnimes,
 } from "../config/anilist";
 import {
-    getBottomNavHeight,
-    getContentPadding,
-    getHeroHeight,
-    getHorizontalMovieWidth,
-    getResponsiveFontSize,
-    getSectionSpacing,
-    useResponsive,
+  getBottomNavHeight,
+  getContentPadding,
+  getHeroHeight,
+  getHorizontalMovieWidth,
+  getResponsiveFontSize,
+  getSectionSpacing,
+  useResponsive,
 } from "../constants/responsive";
 import { addMovieToPlaylist, createPlaylist, getPlaylists } from "../storage";
 
@@ -165,14 +165,11 @@ export default function HomeScreen({ navigation, user }) {
   useEffect(() => {
     const loadHomeData = async () => {
       try {
-        console.log("🏠 Carregando dados da Home...");
-
         // Hero: Popular anime
         const heroResponse = await searchAnimes("Death Note");
         const heroResults = heroResponse?.results || [];
         if (heroResults?.length > 0) {
           setHeroMovie(heroResults[0]);
-          console.log("🎬 Hero:", heroResults[0].Title);
         }
 
         // Trending: Popular animes
@@ -189,15 +186,7 @@ export default function HomeScreen({ navigation, user }) {
             const recResponse = await getAnimesByGenre(recGenre, 1);
             const recResults = recResponse?.results || [];
             setRecommendations(recResults.slice(0, 8));
-            console.log(
-              "💡 Recomendações por",
-              recGenre,
-              ":",
-              recResults.length,
-              "itens",
-            );
           } catch (error) {
-            console.log("⚠️ Erro ao buscar por gênero:", error);
             setRecommendations([]);
           }
         }
@@ -212,38 +201,19 @@ export default function HomeScreen({ navigation, user }) {
           )
           .slice(0, 8);
         setEditorial(dramFiltered);
-        console.log("🏆 Editorial (Drama):", dramFiltered.length, "itens");
 
         // Novidades da Estação
         const seasonalResponse = await getAnimesByGenre("Adventure", 1);
         setSeasonal((seasonalResponse?.results || []).slice(0, 8));
-        console.log(
-          "📅 Novidades da Estação:",
-          seasonalResponse?.results?.length || 0,
-          "itens",
-        );
 
         // Aclamação da Crítica (Top rated)
         const topRatedResponse = await getPopularAnimes();
         setTopRated((topRatedResponse?.results || []).slice(0, 8));
-        console.log(
-          "⭐ Aclamação da Crítica:",
-          topRatedResponse?.results?.length || 0,
-          "itens",
-        );
 
         // Favoritos da Comunidade
         const favResponse = await getAnimesByGenre("Romance", 1);
         setFavorites((favResponse?.results || []).slice(0, 8));
-        console.log(
-          "❤️ Favoritos da Comunidade:",
-          favResponse?.results?.length || 0,
-          "itens",
-        );
-
-        console.log("✅ Home carregada com sucesso!");
       } catch (error) {
-        console.log("❌ Erro ao carregar home:", error);
       } finally {
         setLoading(false);
       }
@@ -279,7 +249,6 @@ export default function HomeScreen({ navigation, user }) {
       const response = await searchAnimes(text.trim());
       setSearchResults(response?.results || []);
     } catch (error) {
-      console.log("Erro ao buscar:", error);
       setSearchResults([]);
     } finally {
       setSearchLoading(false);

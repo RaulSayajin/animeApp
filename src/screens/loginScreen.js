@@ -19,10 +19,7 @@ export default function LoginScreen({ navigation, onAuthSuccess }) {
   const [messageType, setMessageType] = useState(null);
 
   const handleLogin = async () => {
-    console.log("🔐 [LOGIN] Tentando login com email:", email);
-
     if (!email || email.trim().length === 0) {
-      console.log("❌ Email vazio");
       setMessage("Digite seu e-mail.");
       setMessageType("error");
       Alert.alert("Atenção", "Digite seu e-mail.");
@@ -31,7 +28,6 @@ export default function LoginScreen({ navigation, onAuthSuccess }) {
     }
 
     if (!email.includes("@")) {
-      console.log("❌ Email sem @");
       setMessage("E-mail deve conter '@'.");
       setMessageType("error");
       Alert.alert("Atenção", "E-mail deve conter '@'.");
@@ -40,7 +36,6 @@ export default function LoginScreen({ navigation, onAuthSuccess }) {
     }
 
     if (!senha || senha.length === 0) {
-      console.log("❌ Senha vazia");
       setMessage("Digite sua senha.");
       setMessageType("error");
       Alert.alert("Atenção", "Digite sua senha.");
@@ -49,7 +44,6 @@ export default function LoginScreen({ navigation, onAuthSuccess }) {
     }
 
     if (senha.length < 6) {
-      console.log("❌ Senha muito curta");
       setMessage("A senha deve ter no mínimo 6 caracteres.");
       setMessageType("error");
       Alert.alert("Atenção", "A senha deve ter no mínimo 6 caracteres.");
@@ -61,19 +55,13 @@ export default function LoginScreen({ navigation, onAuthSuccess }) {
       setLoading(true);
       setMessage("⏳ Autenticando...");
       setMessageType("loading");
-      console.log(
-        "⏳ [LOGIN] Chamando loginUser com:",
-        email.toLowerCase().trim(),
-      );
 
       const result = await loginUser(email.toLowerCase().trim(), senha);
-      console.log("📦 [LOGIN] Resultado recebido:", result);
 
       setLoading(false);
 
       if (!result || !result.ok) {
         const errorMsg = result?.message || "E-mail ou senha inválidos.";
-        console.log("❌ Login falhou:", errorMsg);
         setMessage(errorMsg);
         setMessageType("error");
         Alert.alert("❌ Falha no Login", errorMsg);
@@ -82,14 +70,12 @@ export default function LoginScreen({ navigation, onAuthSuccess }) {
       }
 
       if (!result.user) {
-        console.log("❌ Usuário não encontrado nos dados");
         setMessage("Dados do usuário não encontrados.");
         setMessageType("error");
         Alert.alert("Erro", "Dados do usuário não encontrados.");
         return;
       }
 
-      console.log("✅ Login bem-sucedido para:", result.user.email);
       setMessage(`✓ Bem-vindo, ${result.user.nome}!`);
       setMessageType("success");
 
@@ -99,20 +85,17 @@ export default function LoginScreen({ navigation, onAuthSuccess }) {
 
       // Chamar callback de autenticação
       if (onAuthSuccess) {
-        console.log("🔄 Chamando onAuthSuccess");
         onAuthSuccess(result.user);
       }
 
       // Redirecionar para Home após 1 segundo
       setTimeout(() => {
-        console.log("🏠 Redirecionando para Home");
         navigation.reset({
           index: 0,
           routes: [{ name: "Home" }],
         });
       }, 1000);
     } catch (error) {
-      console.error("💥 Erro no login:", error);
       setLoading(false);
       setMessage(error.message || "Erro ao fazer login. Tente novamente.");
       setMessageType("error");

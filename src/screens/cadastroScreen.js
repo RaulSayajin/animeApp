@@ -54,10 +54,7 @@ export default function CadastroScreen({ navigation }) {
   const [messageType, setMessageType] = useState(null);
 
   const handleCadastro = async () => {
-    console.log("📝 [CADASTRO] Iniciando validação");
-
     if (!nome || !nome.trim()) {
-      console.log("❌ Nome vazio");
       setMessage("Digite seu nome completo.");
       setMessageType("error");
       Alert.alert("Atenção", "Digite seu nome completo.");
@@ -66,7 +63,6 @@ export default function CadastroScreen({ navigation }) {
     }
 
     if (!email || !email.trim()) {
-      console.log("❌ Email vazio");
       setMessage("Digite seu e-mail.");
       setMessageType("error");
       Alert.alert("Atenção", "Digite seu e-mail.");
@@ -75,7 +71,6 @@ export default function CadastroScreen({ navigation }) {
     }
 
     if (!senha) {
-      console.log("❌ Senha vazia");
       setMessage("Digite uma senha.");
       setMessageType("error");
       Alert.alert("Atenção", "Digite uma senha.");
@@ -84,7 +79,6 @@ export default function CadastroScreen({ navigation }) {
     }
 
     if (!confirmarSenha) {
-      console.log("❌ Confirmação de senha vazia");
       setMessage("Confirme sua senha.");
       setMessageType("error");
       Alert.alert("Atenção", "Confirme sua senha.");
@@ -93,7 +87,6 @@ export default function CadastroScreen({ navigation }) {
     }
 
     if (!cpf || cpf.trim() === "") {
-      console.log("❌ CPF vazio");
       setMessage("Digite seu CPF.");
       setMessageType("error");
       Alert.alert("Atenção", "Digite seu CPF.");
@@ -102,7 +95,6 @@ export default function CadastroScreen({ navigation }) {
     }
 
     if (!telefone || telefone.trim() === "") {
-      console.log("❌ Telefone vazio");
       setMessage("Digite seu telefone.");
       setMessageType("error");
       Alert.alert("Atenção", "Digite seu telefone.");
@@ -111,7 +103,6 @@ export default function CadastroScreen({ navigation }) {
     }
 
     if (!/\S+@\S+\.\S+/.test(email)) {
-      console.log("❌ Email inválido");
       setMessage("E-mail inválido. Exemplo: usuario@email.com");
       setMessageType("error");
       Alert.alert("Atenção", "E-mail inválido. Exemplo: usuario@email.com");
@@ -120,7 +111,6 @@ export default function CadastroScreen({ navigation }) {
     }
 
     if (senha.length < 6) {
-      console.log("❌ Senha muito curta");
       setMessage("A senha deve ter no mínimo 6 caracteres.");
       setMessageType("error");
       Alert.alert("Atenção", "A senha deve ter no mínimo 6 caracteres.");
@@ -129,7 +119,6 @@ export default function CadastroScreen({ navigation }) {
     }
 
     if (senha !== confirmarSenha) {
-      console.log("❌ Senhas não conferem");
       setMessage("As senhas não conferem.");
       setMessageType("error");
       Alert.alert("Atenção", "As senhas não conferem.");
@@ -139,7 +128,6 @@ export default function CadastroScreen({ navigation }) {
 
     const cpfDigits = cpf.replace(/\D/g, "");
     if (cpfDigits.length !== 11) {
-      console.log("❌ CPF inválido:", cpfDigits.length, "dígitos");
       setMessage("CPF deve ter 11 dígitos.");
       setMessageType("error");
       Alert.alert("Atenção", "CPF deve ter 11 dígitos.");
@@ -149,7 +137,6 @@ export default function CadastroScreen({ navigation }) {
 
     const phoneDigits = telefone.replace(/\D/g, "");
     if (phoneDigits.length < 10) {
-      console.log("❌ Telefone inválido:", phoneDigits.length, "dígitos");
       setMessage("Telefone deve ter no mínimo 10 dígitos.");
       setMessageType("error");
       Alert.alert("Atenção", "Telefone deve ter no mínimo 10 dígitos.");
@@ -158,7 +145,6 @@ export default function CadastroScreen({ navigation }) {
     }
 
     if (!curso) {
-      console.log("❌ Curso não selecionado");
       setMessage("Selecione um curso.");
       setMessageType("error");
       Alert.alert("Atenção", "Selecione um curso.");
@@ -170,7 +156,6 @@ export default function CadastroScreen({ navigation }) {
       setLoading(true);
       setMessage("⏳ Salvando cadastro...");
       setMessageType("loading");
-      console.log("⏳ [CADASTRO] Chamando registerUser...");
 
       const result = await registerUser({
         nome: nome.trim(),
@@ -181,12 +166,10 @@ export default function CadastroScreen({ navigation }) {
         curso,
       });
 
-      console.log("📦 [CADASTRO] Resultado recebido:", result);
       setLoading(false);
 
       if (!result || !result.ok) {
         const errorMsg = result?.message || "Erro ao registrar usuário.";
-        console.log("❌ Cadastro falhou:", errorMsg);
         setMessage(errorMsg);
         setMessageType("error");
         Alert.alert("✗ Erro no Cadastro", errorMsg);
@@ -194,7 +177,6 @@ export default function CadastroScreen({ navigation }) {
         return;
       }
 
-      console.log("✅ Cadastro bem-sucedido para:", email);
       setMessage("✓ Cadastro realizado com sucesso!");
       setMessageType("success");
       Alert.alert(
@@ -204,14 +186,12 @@ export default function CadastroScreen({ navigation }) {
           {
             text: "Ir para Login",
             onPress: () => {
-              console.log("🔄 Navegando para Login");
               navigation.navigate("Login");
             },
           },
         ],
       );
     } catch (error) {
-      console.error("💥 Erro no cadastro:", error);
       setLoading(false);
       setMessage(error.message || "Erro ao cadastrar. Tente novamente.");
       setMessageType("error");

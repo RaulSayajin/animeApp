@@ -1,26 +1,26 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  ImageBackground,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    ImageBackground,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 import GenreSelector from "../components/GenreSelector";
 import PlaylistModal from "../components/PlaylistModal";
 import {
-  getAnimeDetails,
-  getPopularAnimes,
-  searchAnimes,
+    getAnimeDetails,
+    getPopularAnimes,
+    searchAnimes,
 } from "../config/anilist";
 import {
-  getBottomNavHeight,
-  getContentPadding,
-  useResponsive,
+    getBottomNavHeight,
+    getContentPadding,
+    useResponsive,
 } from "../constants/responsive";
 import { addMovieToPlaylist, createPlaylist, getPlaylists } from "../storage";
 
@@ -54,7 +54,6 @@ export default function DescobrirScreen({ navigation, user }) {
       setHasNextPage(response?.pagination?.hasNextPage || false);
       setCurrentPage(1);
     } catch (error) {
-      console.log("Erro ao carregar trending now:", error);
       setMovies([]);
       setHasNextPage(false);
     } finally {
@@ -85,7 +84,6 @@ export default function DescobrirScreen({ navigation, user }) {
       setMovies(response?.results || []);
       setHasNextPage(response?.pagination?.hasNextPage || false);
     } catch (error) {
-      console.log("Erro ao buscar:", error);
       setMovies([]);
       setHasNextPage(false);
     } finally {
@@ -118,7 +116,6 @@ export default function DescobrirScreen({ navigation, user }) {
       setMovies(response?.results || []);
       setHasNextPage(response?.pagination?.hasNextPage || false);
     } catch (error) {
-      console.log("Erro ao filtrar por gêneros:", error);
       setMovies([]);
       setHasNextPage(false);
     } finally {
@@ -180,7 +177,6 @@ export default function DescobrirScreen({ navigation, user }) {
         setCurrentPage(nextPage);
       }
     } catch (error) {
-      console.log("Erro ao carregar mais:", error);
     } finally {
       setIsLoadingMore(false);
     }

@@ -8,7 +8,7 @@ import {
     ScrollView,
     StyleSheet,
     Text,
-    View
+    View,
 } from "react-native";
 import PlaylistModal from "../components/PlaylistModal";
 import { getBottomNavHeight, useResponsive } from "../constants/responsive";
@@ -32,7 +32,6 @@ export default function FavoritosScreen({ navigation, user }) {
       const userPlaylists = await getPlaylists(user.id);
       setPlaylists(userPlaylists);
     } catch (error) {
-      console.log("Erro ao carregar dados:", error);
     } finally {
       setLoading(false);
     }

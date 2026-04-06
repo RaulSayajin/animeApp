@@ -1,10 +1,8 @@
-import { useState } from "react";
 import {
   Alert,
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   View,
 } from "react-native";
@@ -13,9 +11,6 @@ import { logoutUser } from "../storage";
 
 export default function ConfigScreen({ navigation, user, onLogout }) {
   const responsive = useResponsive();
-  const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
-  const [autoPlay, setAutoPlay] = useState(true);
 
   const handleLogout = async () => {
     Alert.alert("Sair", "Tem certeza que deseja sair?", [
@@ -54,158 +49,55 @@ export default function ConfigScreen({ navigation, user, onLogout }) {
 
           <View style={styles.accountCard}>
             <View style={styles.avatarContainer}>
-              <Text style={styles.avatar}>{user?.name?.charAt(0)}</Text>
+              <Text style={styles.avatar}>{user?.nome?.charAt(0) || "U"}</Text>
             </View>
             <View style={styles.accountInfo}>
-              <Text style={styles.accountName}>{user?.name}</Text>
-              <Text style={styles.accountEmail}>{user?.email}</Text>
+              <Text style={styles.accountName}>{user?.nome || "Sem nome"}</Text>
+              <Text style={styles.accountEmail}>
+                {user?.email || "Sem email"}
+              </Text>
             </View>
           </View>
 
-          <Pressable style={styles.settingRow}>
-            <View>
+          {!user && (
+            <View
+              style={[
+                styles.settingRow,
+                { backgroundColor: "#ff4444", borderColor: "#ff0000" },
+              ]}
+            >
+              <Text style={{ color: "#fff", fontWeight: "bold" }}>
+                ⚠️ Nenhum usuário encontrado!
+              </Text>
+            </View>
+          )}
+
+          <View style={styles.settingRow}>
+            <View style={{ flex: 1 }}>
               <Text style={styles.settingLabel}>ID da Conta</Text>
               <Text style={styles.settingValue} numberOfLines={1}>
-                {user?.id}
+                {user?.id || "N/A"}
               </Text>
             </View>
-          </Pressable>
-        </View>
-
-        {/* Seção de Notificações */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🔔 NOTIFICAÇÕES</Text>
-
-          <View style={styles.settingRow}>
-            <View style={styles.settingContent}>
-              <Text style={styles.settingLabel}>Notificações Push</Text>
-              <Text style={styles.settingDescription}>
-                Receba atualizações de novos animes
-              </Text>
-            </View>
-            <Switch
-              value={notifications}
-              onValueChange={setNotifications}
-              trackColor={{ false: "#1a1a1e", true: "#eab30844" }}
-              thumbColor={notifications ? "#eab308" : "#71717a"}
-            />
           </View>
 
-          <View style={styles.settingRow}>
-            <View style={styles.settingContent}>
-              <Text style={styles.settingLabel}>Recomendações</Text>
-              <Text style={styles.settingDescription}>
-                Notificações de animes recomendados
-              </Text>
+          {user?.curso && (
+            <View style={styles.settingRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.settingLabel}>Curso</Text>
+                <Text style={styles.settingValue}>{user.curso}</Text>
+              </View>
             </View>
-            <Switch
-              value={true}
-              onValueChange={() => {}}
-              trackColor={{ false: "#1a1a1e", true: "#eab30844" }}
-              thumbColor="#eab308"
-            />
-          </View>
-        </View>
+          )}
 
-        {/* Seção de Reprodução */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>▶️ REPRODUÇÃO</Text>
-
-          <View style={styles.settingRow}>
-            <View style={styles.settingContent}>
-              <Text style={styles.settingLabel}>Reprodução Automática</Text>
-              <Text style={styles.settingDescription}>
-                Reproduzir próximo episódio automaticamente
-              </Text>
+          {user?.telefone && (
+            <View style={styles.settingRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.settingLabel}>Telefone</Text>
+                <Text style={styles.settingValue}>{user.telefone}</Text>
+              </View>
             </View>
-            <Switch
-              value={autoPlay}
-              onValueChange={setAutoPlay}
-              trackColor={{ false: "#1a1a1e", true: "#eab30844" }}
-              thumbColor={autoPlay ? "#eab308" : "#71717a"}
-            />
-          </View>
-
-          <Pressable style={styles.settingRow}>
-            <View style={styles.settingContent}>
-              <Text style={styles.settingLabel}>Qualidade de Vídeo</Text>
-              <Text style={styles.settingValue}>HD (automático)</Text>
-            </View>
-            <Text style={styles.arrow}>›</Text>
-          </Pressable>
-
-          <Pressable style={styles.settingRow}>
-            <View style={styles.settingContent}>
-              <Text style={styles.settingLabel}>Idioma de Áudio</Text>
-              <Text style={styles.settingValue}>Português</Text>
-            </View>
-            <Text style={styles.arrow}>›</Text>
-          </Pressable>
-        </View>
-
-        {/* Seção de Aparência */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🎨 APARÊNCIA</Text>
-
-          <View style={styles.settingRow}>
-            <View style={styles.settingContent}>
-              <Text style={styles.settingLabel}>Tema Escuro</Text>
-              <Text style={styles.settingDescription}>
-                Sempre usar tema escuro
-              </Text>
-            </View>
-            <Switch
-              value={darkMode}
-              onValueChange={setDarkMode}
-              trackColor={{ false: "#1a1a1e", true: "#eab30844" }}
-              thumbColor={darkMode ? "#eab308" : "#71717a"}
-            />
-          </View>
-        </View>
-
-        {/* Seção de Privacidade */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>🔒 PRIVACIDADE</Text>
-
-          <Pressable style={styles.settingRow}>
-            <View style={styles.settingContent}>
-              <Text style={styles.settingLabel}>Gerenciar Dados Pessoais</Text>
-              <Text style={styles.settingDescription}>
-                Controlar quais dados coletamos
-              </Text>
-            </View>
-            <Text style={styles.arrow}>›</Text>
-          </Pressable>
-
-          <Pressable style={styles.settingRow}>
-            <View style={styles.settingContent}>
-              <Text style={styles.settingLabel}>Histórico de Atividade</Text>
-              <Text style={styles.settingDescription}>
-                Ver e gerenciar seu histórico
-              </Text>
-            </View>
-            <Text style={styles.arrow}>›</Text>
-          </Pressable>
-        </View>
-
-        {/* Seção de Sobre */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>ℹ️ SOBRE</Text>
-
-          <View style={styles.settingRow}>
-            <Text style={styles.settingLabel}>Versão do App</Text>
-            <Text style={styles.settingValue}>1.0.0</Text>
-          </View>
-
-          <Pressable style={styles.settingRow}>
-            <Text style={styles.settingLabel}>Termos de Serviço</Text>
-            <Text style={styles.arrow}>›</Text>
-          </Pressable>
-
-          <Pressable style={styles.settingRow}>
-            <Text style={styles.settingLabel}>Política de Privacidade</Text>
-            <Text style={styles.arrow}>›</Text>
-          </Pressable>
+          )}
         </View>
 
         {/* Seção de Ações */}
