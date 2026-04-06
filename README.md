@@ -185,6 +185,9 @@ Documentação: [https://anilist.co/graphql/](https://anilist.co/graphql/)
 
 Este projeto é fornecido como está para fins educacionais.
 
-## 👥 Autor
+## 👥 Autores
+
+Raul De Oliveira Gonçalves
+Bruno Jose Rodrigues da Silva
 
 Desenvolvido para a disciplina de Mobile (Xandy Gomes) - 4º Semestre FATEC
