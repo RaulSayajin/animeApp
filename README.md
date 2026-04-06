@@ -1,4 +1,9 @@
+Nomes: 
+Raul de Oliveira Goncalves
+Bruno José Rodrigues da Silva
+
 # AnimeList - Aplicativo de Animes
+
 
 Este é um aplicativo mobile desenvolvido com **Expo** e **React Native** que permite aos usuários buscar animes via API AniList GraphQL, criar contas com validação de CPF e telefone, e gerenciar uma lista de animes favoritos com persistência de dados.
 
