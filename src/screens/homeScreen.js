@@ -4,7 +4,6 @@ import {
   Alert,
   FlatList,
   ImageBackground,
-  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -228,13 +227,6 @@ export default function HomeScreen({ navigation, user }) {
     },
     [navigation],
   );
-
-  const handleOpenIMDB = useCallback((imdbID) => {
-    const imdbUrl = `https://www.imdb.com/title/${imdbID}/`;
-    Linking.openURL(imdbUrl).catch(() => {
-      Alert.alert("Erro", "Não foi possível abrir o IMDB");
-    });
-  }, []);
 
   const handleSearch = useCallback(async (text) => {
     setSearch(text);
@@ -465,12 +457,6 @@ export default function HomeScreen({ navigation, user }) {
                       ⭐ {heroMovie.imdbRating}
                     </Text>
                   </View>
-                  <Pressable
-                    style={styles.heroButton}
-                    onPress={() => handleOpenIMDB(heroMovie.imdbID)}
-                  >
-                    <Text style={styles.heroButtonText}>► Assistir Agora</Text>
-                  </Pressable>
                 </View>
               </ImageBackground>
             </Pressable>
@@ -692,24 +678,6 @@ const styles = StyleSheet.create({
   heroRating: {
     color: "#a1a1aa",
     fontSize: 13,
-    fontWeight: "700",
-  },
-  heroButton: {
-    backgroundColor: "#eab308",
-    paddingVertical: 14,
-    paddingHorizontal: 28,
-    borderRadius: 12,
-    alignItems: "center",
-    width: "85%",
-    shadowColor: "#eab308",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  heroButtonText: {
-    color: "#000",
-    fontSize: 14,
     fontWeight: "700",
   },
   rowSection: {
