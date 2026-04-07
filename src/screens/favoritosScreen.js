@@ -1,18 +1,24 @@
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
 import {
-    ActivityIndicator,
-    FlatList,
-    ImageBackground,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  ActivityIndicator,
+  Alert,
+  FlatList,
+  ImageBackground,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import PlaylistModal from "../components/PlaylistModal";
 import { getBottomNavHeight, useResponsive } from "../constants/responsive";
-import { createPlaylist, getPlaylists } from "../storage";
+import {
+  createPlaylist,
+  deletePlaylist,
+  getPlaylists,
+  removeMovieFromPlaylist,
+} from "../storage";
 
 export default function FavoritosScreen({ navigation, user }) {
   const responsive = useResponsive();
@@ -20,6 +26,7 @@ export default function FavoritosScreen({ navigation, user }) {
   const [loading, setLoading] = useState(true);
   const [expandedPlaylist, setExpandedPlaylist] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [movieBeingRemoved, setMovieBeingRemoved] = useState(null);
 
   const loadData = useCallback(async () => {
     if (!user?.id) {
@@ -45,6 +52,65 @@ export default function FavoritosScreen({ navigation, user }) {
     }
   };
 
+  const handleRemoveMovieFromPlaylist = async (
+    playlistId,
+    movieId,
+    movieTitle,
+  ) => {
+    Alert.alert(
+      "Remover Anime",
+      `Tem certeza que deseja remover "${movieTitle}" desta playlist?`,
+      [
+        {
+          text: "Cancelar",
+          onPress: () => setMovieBeingRemoved(null),
+          style: "cancel",
+        },
+        {
+          text: "Remover",
+          onPress: async () => {
+            const success = await removeMovieFromPlaylist(
+              user.id,
+              playlistId,
+              movieId,
+            );
+            if (success) {
+              Alert.alert("Sucesso", "Anime removido da playlist!");
+              loadData();
+            }
+            setMovieBeingRemoved(null);
+          },
+          style: "destructive",
+        },
+      ],
+    );
+  };
+
+  const handleDeletePlaylist = async (playlistId, playlistName) => {
+    Alert.alert(
+      "Deletar Playlist",
+      `Tem certeza que deseja deletar a playlist "${playlistName}"? Esta ação não pode ser desfeita.`,
+      [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Deletar",
+          onPress: async () => {
+            const success = await deletePlaylist(user.id, playlistId);
+            if (success) {
+              Alert.alert("Sucesso", "Playlist deletada!");
+              loadData();
+              setExpandedPlaylist(null);
+            }
+          },
+          style: "destructive",
+        },
+      ],
+    );
+  };
+
   // Load data when screen is focused
   useFocusEffect(
     useCallback(() => {
@@ -53,28 +119,42 @@ export default function FavoritosScreen({ navigation, user }) {
   );
 
   const renderPlaylistMovie = ({ item }) => (
-    <Pressable
-      style={styles.playlistMovie}
-      onPress={() => navigation.navigate("Detalhes", { id: item.id })}
-    >
-      <View style={styles.playlistMoviePosterContainer}>
-        <ImageBackground
-          source={{
-            uri:
-              item.Poster !== "N/A"
-                ? item.Poster
-                : "https://via.placeholder.com/150",
-          }}
-          style={styles.playlistMoviePoster}
-          imageStyle={{ borderRadius: 16 }}
-        >
-          <View style={styles.playlistMovieOverlay} />
-        </ImageBackground>
-      </View>
-      <Text style={styles.playlistMovieTitle} numberOfLines={1}>
-        {item.Title}
-      </Text>
-    </Pressable>
+    <View style={styles.playlistMovieWrapper}>
+      <Pressable
+        style={styles.playlistMovie}
+        onPress={() => navigation.navigate("Detalhes", { id: item.id })}
+      >
+        <View style={styles.playlistMoviePosterContainer}>
+          <ImageBackground
+            source={{
+              uri:
+                item.Poster !== "N/A"
+                  ? item.Poster
+                  : "https://via.placeholder.com/150",
+            }}
+            style={styles.playlistMoviePoster}
+            imageStyle={{ borderRadius: 16 }}
+          >
+            <View style={styles.playlistMovieOverlay} />
+          </ImageBackground>
+        </View>
+        <Text style={styles.playlistMovieTitle} numberOfLines={1}>
+          {item.Title}
+        </Text>
+      </Pressable>
+      <Pressable
+        style={styles.removeMovieBtn}
+        onPress={() =>
+          handleRemoveMovieFromPlaylist(
+            movieBeingRemoved?.playlistId,
+            item.id || item.imdbID,
+            item.Title,
+          )
+        }
+      >
+        <Text style={styles.removeMovieBtnText}>✕</Text>
+      </Pressable>
+    </View>
   );
 
   const renderPlaylistCard = ({ item: playlist }) => (
@@ -99,14 +179,25 @@ export default function FavoritosScreen({ navigation, user }) {
             </Text>
           </View>
         </View>
-        <Text
-          style={[
-            styles.expandIcon,
-            expandedPlaylist === playlist.id && styles.expandIconActive,
-          ]}
-        >
-          {expandedPlaylist === playlist.id ? "▼" : "▶"}
-        </Text>
+        <View style={styles.playlistHeaderActions}>
+          <Text
+            style={[
+              styles.expandIcon,
+              expandedPlaylist === playlist.id && styles.expandIconActive,
+            ]}
+          >
+            {expandedPlaylist === playlist.id ? "▼" : "▶"}
+          </Text>
+          <Pressable
+            style={styles.deletePlaylistBtn}
+            onPress={(e) => {
+              e.stopPropagation();
+              handleDeletePlaylist(playlist.id, playlist.name);
+            }}
+          >
+            <Text style={styles.deletePlaylistBtnText}>🗑️</Text>
+          </Pressable>
+        </View>
       </Pressable>
 
       {expandedPlaylist === playlist.id && (
@@ -115,8 +206,11 @@ export default function FavoritosScreen({ navigation, user }) {
           {playlist.movies.length > 0 ? (
             <FlatList
               data={playlist.movies}
-              renderItem={renderPlaylistMovie}
-              keyExtractor={(item) => String(item.id)}
+              renderItem={(props) => {
+                // Detect if a movie is being removed to show option
+                return renderPlaylistMovie(props);
+              }}
+              keyExtractor={(item) => String(item.id || item.imdbID)}
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.playlistMoviesContent}
@@ -373,6 +467,45 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     letterSpacing: 0.5,
     fontStyle: "italic",
+  },
+  playlistMovieWrapper: {
+    position: "relative",
+    width: 140,
+  },
+  removeMovieBtn: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "#dc2626",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 10,
+    borderWidth: 2,
+    borderColor: "#050505",
+  },
+  removeMovieBtnText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "900",
+  },
+  playlistHeaderActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  deletePlaylistBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: "#dc2626",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  deletePlaylistBtnText: {
+    fontSize: 16,
   },
   emptyPlaylist: {
     color: "#3f3f46",

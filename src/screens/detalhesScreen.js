@@ -5,6 +5,7 @@ import {
   Dimensions,
   FlatList,
   ImageBackground,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -21,7 +22,12 @@ import {
   useResponsive,
 } from "../constants/responsive";
 import { NAV_ITEMS } from "../navigation/navigationConfig";
-import { addMovieToPlaylist, createPlaylist, getPlaylists } from "../storage";
+import {
+  addMovieToPlaylist,
+  createPlaylist,
+  getPlaylists,
+  removeMovieFromPlaylist,
+} from "../storage";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -36,8 +42,10 @@ export default function DetalhesScreen({
   const { id } = route.params;
   const [movie, setMovie] = useState(null);
   const [showPlaylistModal, setShowPlaylistModal] = useState(false);
+  const [showRemovalModal, setShowRemovalModal] = useState(false);
   const [playlists, setPlaylists] = useState([]);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [playlistsWithMovie, setPlaylistsWithMovie] = useState([]);
 
   useEffect(() => {
     getAnimeDetails(id).then(async (data) => {
@@ -52,9 +60,11 @@ export default function DetalhesScreen({
     if (user?.id) {
       const allPlaylists = await getPlaylists(user.id);
       setPlaylists(allPlaylists);
-      const inAnyPlaylist = allPlaylists.some((playlist) =>
+      const playlistsContainingMovie = allPlaylists.filter((playlist) =>
         playlist.movies.some((m) => m.id === movie?.id || m.id === id),
       );
+      setPlaylistsWithMovie(playlistsContainingMovie);
+      const inAnyPlaylist = playlistsContainingMovie.length > 0;
       setIsFavorite(inAnyPlaylist);
     }
   };
@@ -80,7 +90,27 @@ export default function DetalhesScreen({
       Alert.alert("Atenção", "Faça login para salvar animes.");
       return;
     }
-    setShowPlaylistModal(true);
+
+    if (isFavorite) {
+      // If already in playlists, show removal options
+      setShowRemovalModal(true);
+    } else {
+      // If not in any playlist, show add modal
+      setShowPlaylistModal(true);
+    }
+  };
+
+  const handleRemoveFromPlaylist = async (playlistId) => {
+    const success = await removeMovieFromPlaylist(
+      user.id,
+      playlistId,
+      movie.id || movie.imdbID,
+    );
+    if (success) {
+      Alert.alert("Sucesso", "Anime removido da playlist!");
+      setShowRemovalModal(false);
+      loadPlaylists();
+    }
   };
 
   if (!movie) {
@@ -303,6 +333,42 @@ export default function DetalhesScreen({
         onAddToPlaylist={handleAddToPlaylist}
         onCreatePlaylist={handleCreatePlaylist}
       />
+
+      <Modal
+        visible={showRemovalModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowRemovalModal(false)}
+      >
+        <View style={styles.removalModalOverlay}>
+          <View style={styles.removalModalContent}>
+            <Text style={styles.removalModalTitle}>Remover de Playlist</Text>
+            <Text style={styles.removalModalSubtitle}>
+              Selecione as playlists das quais deseja remover este anime:
+            </Text>
+            <ScrollView style={styles.removalPlaylistList}>
+              {playlistsWithMovie.map((playlist) => (
+                <TouchableOpacity
+                  key={playlist.id}
+                  style={styles.removalPlaylistItem}
+                  onPress={() => handleRemoveFromPlaylist(playlist.id)}
+                >
+                  <Text style={styles.removalPlaylistName}>
+                    {playlist.name}
+                  </Text>
+                  <Text style={styles.removalPlaylistRemoveIcon}>✕</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity
+              style={styles.removalModalCloseBtn}
+              onPress={() => setShowRemovalModal(false)}
+            >
+              <Text style={styles.removalModalCloseBtnText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       <ResponsiveNavigation
         items={NAV_ITEMS}
@@ -548,5 +614,67 @@ const styles = StyleSheet.create({
   },
   spacer: {
     height: 40,
+  },
+  removalModalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.8)",
+    justifyContent: "flex-end",
+  },
+  removalModalContent: {
+    backgroundColor: "#18181b",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 32,
+    maxHeight: "80%",
+  },
+  removalModalTitle: {
+    fontSize: 18,
+    fontWeight: "900",
+    color: "#fff",
+    marginBottom: 4,
+    letterSpacing: -0.5,
+  },
+  removalModalSubtitle: {
+    fontSize: 12,
+    color: "#a1a1aa",
+    marginBottom: 20,
+    fontWeight: "500",
+  },
+  removalPlaylistList: {
+    marginBottom: 20,
+    maxHeight: 300,
+  },
+  removalPlaylistItem: {
+    backgroundColor: "#27272a",
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  removalPlaylistName: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 13,
+  },
+  removalPlaylistRemoveIcon: {
+    color: "#dc2626",
+    fontSize: 16,
+    fontWeight: "900",
+  },
+  removalModalCloseBtn: {
+    backgroundColor: "#eab308",
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  removalModalCloseBtnText: {
+    color: "#000",
+    fontWeight: "900",
+    fontSize: 13,
+    letterSpacing: 0.5,
   },
 });
